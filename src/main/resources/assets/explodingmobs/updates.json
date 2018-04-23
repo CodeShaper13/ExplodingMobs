@@ -1,0 +1,11 @@
+{
+	"homepage": "https://www.minecraftforum.net/forums/mapping-and-modding-java-edition/minecraft-mods/2884536-exploding-mobs-a-death-effect-for-vanilla-mobs",
+	"promos": {
+		"1.12.2-latest": "v1.2",
+		"1.12.2-recomended": "v1.2"
+	},
+	"1.12.2": {
+		"v1.1": "Fixed a crash when mod entities die, ",
+		"v1.2": "Fixed a bug where entities would not drop XP and added an experimental Player exploding effect.."
+	}
+}

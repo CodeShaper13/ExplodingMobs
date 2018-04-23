@@ -1,0 +1,18 @@
+[
+    {
+        "modid": "explodingmobs",
+        "name": "Exploding Mobs",
+        "description": "A perfect addon for any hack-n-slash map or surivial map, mobs just blow up! BOOM!",
+        "version": "1.2",
+        "mcversion": "1.12.2",
+        "url": "",
+        "updateUrl": "",
+        "authorList": [
+            "CodeShaper"
+        ],
+        "credits": "Thanks to anyone who has reported a bug and YOU!  Yes YOU, for downloading and using this mod.",
+        "logoFile": "",
+        "screenshots": [],
+        "dependencies": []
+    }
+]
