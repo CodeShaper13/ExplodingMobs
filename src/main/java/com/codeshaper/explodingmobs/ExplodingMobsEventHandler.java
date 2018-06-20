@@ -7,6 +7,8 @@ import java.util.Random;
 import com.codeshaper.explodingmobs.entity.EntityFakePlayer;
 import com.codeshaper.explodingmobs.entity.EntityMobPart;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.EntityLivingBase;
@@ -31,7 +33,10 @@ public class ExplodingMobsEventHandler {
 	public void entityDeath(LivingDeathEvent event) {
 		EntityLivingBase living = event.getEntityLiving();
 
-		if (!living.world.isRemote) {
+		
+		if (living.world.isRemote) {
+			
+		} else {
 			EntityEntry ee = EntityRegistry.getEntry(living.getClass()); // Null for player.
 			if ((living instanceof EntityPlayer)) {
 				ee = EntityRegistry.getEntry(EntityFakePlayer.class);

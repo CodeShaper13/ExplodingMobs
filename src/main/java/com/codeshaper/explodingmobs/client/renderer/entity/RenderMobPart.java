@@ -27,7 +27,7 @@ import com.codeshaper.explodingmobs.Util;
 import com.codeshaper.explodingmobs.entity.EntityFakePlayer;
 import com.codeshaper.explodingmobs.entity.EntityMobPart;
 
-public class RenderMobPart extends Render<EntityMobPart> {
+public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 
 	private static final ResourceLocation ERROR_TEXTURES = new ResourceLocation(ExplodingMobs.MOD_ID, "textures/entity/error.png");
 
@@ -127,6 +127,11 @@ public class RenderMobPart extends Render<EntityMobPart> {
 		EntityLivingBase partTarget = (EntityLivingBase) entity.getTargetEntity();
 		RenderLiving<EntityLiving> entityRenderer = ((RenderLiving<EntityLiving>) Util.getRendererFromEntity(partTarget));
 		return this.getOtherEntityTexture(entityRenderer, partTarget);			
+	}
+	
+	@Override
+	protected boolean bindEntityTexture(EntityMobPart entity) {
+		return super.bindEntityTexture(entity);
 	}
 
 	/**

@@ -28,7 +28,7 @@ import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 public class ExplodingMobs {
 
 	public static final String MOD_ID = "explodingmobs";
-	public static final String VERSION = "v1.2";
+	public static final String VERSION = "v1.3";
 
 	public static final String ID_FAKE_PLAYER = "fake_player";
 	public static final String ID_MOB_PART = "mob_part";

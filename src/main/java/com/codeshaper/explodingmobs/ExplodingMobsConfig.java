@@ -32,16 +32,16 @@ public class ExplodingMobsConfig {
 	 * Checks if the passed entity entry should explode based on the config.
 	 */
 	public static boolean shouldExplode(EntityEntry ee) {
-		if(ExplodingMobsConfig.explodePlayers == false && ee.getEntityClass() == EntityFakePlayer.class) {
+		if(ee.getEntityClass() == EntityFakePlayer.class && ExplodingMobsConfig.explodePlayers == false) {
 			return false;
 		}
-		if (!ExplodingMobsConfig.useMcMobsOnly) {
+		
+		if(ExplodingMobsConfig.useMcMobsOnly) {
 			ResourceLocation rl = ForgeRegistries.ENTITIES.getKey(ee);
-			if(rl.getResourceDomain().equals("minecraft") || rl.getResourceDomain().equals(ExplodingMobs.MOD_ID)) {
-				return true;
-			}
+			return rl.getResourceDomain().equals("minecraft") || rl.getResourceDomain().equals(ExplodingMobs.MOD_ID);
+		} else {
+			return true;
 		}
-		return false;
 	}
 	
 	public boolean shouldExplodePlayers() {
