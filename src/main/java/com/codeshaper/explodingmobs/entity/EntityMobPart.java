@@ -23,15 +23,25 @@ public class EntityMobPart extends Entity {
 	private static final Rotations ZERO_ROT = new Rotations(0.0f, 0.0f, 0.0f);
 
 	// Data Manager Parameters:
-	public static final DataParameter<Rotations> ROTATION = EntityDataManager.<Rotations>createKey(EntityMobPart.class, DataSerializers.ROTATIONS);
-	public static final DataParameter<Rotations> ROTATION_SPEED = EntityDataManager.<Rotations>createKey(EntityMobPart.class, DataSerializers.ROTATIONS);
-	public static final DataParameter<Integer> PART_INDEX = EntityDataManager.<Integer>createKey(EntityMobPart.class, DataSerializers.VARINT);
-	public static final DataParameter<String> ENTITY_JSON = EntityDataManager.<String>createKey(EntityMobPart.class, DataSerializers.STRING);
+	public static final DataParameter<Rotations> ROTATION = EntityDataManager.<Rotations>createKey(EntityMobPart.class,
+			DataSerializers.ROTATIONS);
+	public static final DataParameter<Rotations> ROTATION_SPEED = EntityDataManager
+			.<Rotations>createKey(EntityMobPart.class, DataSerializers.ROTATIONS);
+	public static final DataParameter<Integer> PART_INDEX = EntityDataManager.<Integer>createKey(EntityMobPart.class,
+			DataSerializers.VARINT);
+	public static final DataParameter<String> ENTITY_JSON = EntityDataManager.<String>createKey(EntityMobPart.class,
+			DataSerializers.STRING);
 
-	/** Note, this is not synced, the client is trusted with this as it is only a graphical effect. */
+	/**
+	 * Note, this is not synced, the client is trusted with this as it is only a
+	 * graphical effect.
+	 */
 	public int age;
 
-	/** Entity is saved so we don't need to create an instance every time we need a reference to the entity. */
+	/**
+	 * Entity is saved so we don't need to create an instance every time we need a
+	 * reference to the entity.
+	 */
 	private EntityLivingBase targetEntity;
 
 	// Server side specific constructor.
@@ -43,7 +53,7 @@ public class EntityMobPart extends Entity {
 		if (s != null) {
 			this.setTargetEntity(s);
 		} else {
-			System.err.println("ERROR! Entity from class " + living.getClass().toString()
+			Util.log("Entity from class " + living.getClass().toString()
 					+ " doesn't seem to have been registered!  Removing Mob Part!");
 			this.setDead();
 			return;
@@ -126,7 +136,7 @@ public class EntityMobPart extends Entity {
 	 * Called to update the entity's position/logic.
 	 */
 	@Override
-	public void onUpdate() {		
+	public void onUpdate() {
 		if (this.onGround) {
 			this.setRotationSpeed(ZERO_ROT);
 		} else {
@@ -203,7 +213,7 @@ public class EntityMobPart extends Entity {
 	public void setTargetEntity(String s) {
 		this.dataManager.set(EntityMobPart.ENTITY_JSON, s);
 	}
-	
+
 	public String getTargetEntityAsString() {
 		return this.dataManager.get(EntityMobPart.ENTITY_JSON);
 	}
@@ -219,7 +229,7 @@ public class EntityMobPart extends Entity {
 			if (!StringUtils.isBlank(string)) {
 				this.targetEntity = Util.stringToEntity(this.world, string);
 			} else {
-				System.err.println("The data manager may need a moment to catch up.");
+				Util.warn("The data manager may need a moment to catch up.");
 			}
 		}
 		return this.targetEntity;

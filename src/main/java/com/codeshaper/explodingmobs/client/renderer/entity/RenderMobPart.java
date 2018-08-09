@@ -39,13 +39,13 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 	public void doRender(EntityMobPart entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		Entity targetEntity = entity.getTargetEntity();
 		if(targetEntity == null) {
-			System.out.println("Target entity is null!");
+			Util.log("Target entity is null!");
 			return;
 		}
 		try {
 			Render<?> render = Util.getRendererFromEntity(targetEntity);
 			if(render == null) {
-				System.out.println("render is null!"); //check part index?;
+				Util.log("render is null!"); //check part index?;
 			}
 			if (render != null) {
 				int partIndex = entity.getPartIndex();
@@ -108,14 +108,14 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 
 					GlStateManager.popMatrix();
 				} else {
-					System.err.println("ERROR!  Could not get the model part corresponding to this part!");
+					Util.log("ERROR!  Could not get the model part corresponding to this part!");
 				}
 			} else {
-				System.err.println("ERROR!  Could not get the renderer of " + targetEntity.getName() + "!");
+				Util.log("ERROR!  Could not get the renderer of " + targetEntity.getName() + "!");
 			}
 		} catch (Exception e) {
+			Util.log("ERROR!  Problem rendering MobPart based from " + targetEntity.getName());
 			e.printStackTrace();
-			System.err.println("ERROR!  Problem rendering MobPart based from " + targetEntity.getName());
 		}
 
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);

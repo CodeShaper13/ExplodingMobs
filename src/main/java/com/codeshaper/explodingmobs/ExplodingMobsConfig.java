@@ -1,5 +1,7 @@
 package com.codeshaper.explodingmobs;
 
+import javax.annotation.Nullable;
+
 import com.codeshaper.explodingmobs.entity.EntityFakePlayer;
 
 import net.minecraft.util.ResourceLocation;
@@ -20,30 +22,44 @@ public class ExplodingMobsConfig {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 
-		ExplodingMobsConfig.useMcMobsOnly = config.get(Configuration.CATEGORY_GENERAL, "only_allow_mc_mobs", false).getBoolean();
-		ExplodingMobsConfig.explodePlayers = config.get(Configuration.CATEGORY_GENERAL, "explode_players", false).getBoolean();
-		
+		ExplodingMobsConfig.useMcMobsOnly = config.get(Configuration.CATEGORY_GENERAL, "only_allow_mc_mobs", false)
+				.getBoolean();
+		ExplodingMobsConfig.explodePlayers = config.get(Configuration.CATEGORY_GENERAL, "explode_players", false)
+				.getBoolean();
+
 		if (config.hasChanged()) {
 			config.save();
 		}
 	}
-	
+
 	/**
 	 * Checks if the passed entity entry should explode based on the config.
+	 * 
+	 * @param ee
+	 *            The {@link EntityEntry} that corresponds to the entity is
+	 *            question.
+	 * @return True if the entity should explode, false if it should not.
 	 */
-	public static boolean shouldExplode(EntityEntry ee) {
-		if(ee.getEntityClass() == EntityFakePlayer.class && ExplodingMobsConfig.explodePlayers == false) {
+	public static boolean shouldExplode(@Nullable EntityEntry ee) {
+		if (ee == null) {
 			return false;
 		}
-		
-		if(ExplodingMobsConfig.useMcMobsOnly) {
+
+		if (ee.getEntityClass() == EntityFakePlayer.class && ExplodingMobsConfig.explodePlayers == false) {
+			return false;
+		}
+
+		if (ExplodingMobsConfig.useMcMobsOnly) {
 			ResourceLocation rl = ForgeRegistries.ENTITIES.getKey(ee);
 			return rl.getResourceDomain().equals("minecraft") || rl.getResourceDomain().equals(ExplodingMobs.MOD_ID);
 		} else {
 			return true;
 		}
 	}
-	
+
+	/**
+	 * @return True if the config lets Player explode.
+	 */
 	public boolean shouldExplodePlayers() {
 		return ExplodingMobsConfig.explodePlayers;
 	}

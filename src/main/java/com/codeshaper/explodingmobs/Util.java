@@ -61,15 +61,29 @@ public class Util {
 	public static Render<?> getRendererFromEntity(@Nullable Entity entity) {
 		RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
 		if (renderManager == null) {
-			System.err.println("The RenderManager is null, is this a dedicated server?");
+			Util.log("The RenderManager is null, is this a dedicated server?  There will be problems!!!");
 			return null;
 		} else {
 			if(entity instanceof EntityPlayer) {
-				String s = Minecraft.getMinecraft().getConnection().getPlayerInfo(entity.getUniqueID()).getSkinType();
-				return renderManager.getSkinMap().get(s);
+				try {
+					String s = Minecraft.getMinecraft().getConnection().getPlayerInfo(entity.getUniqueID()).getSkinType();
+					return renderManager.getSkinMap().get(s);
+				} catch (Exception e) {
+					Util.log("While attempting to explode a player there was a problem looking up critical model and skin information.  Using the default model.  Exception stack trace will follow.");
+					e.printStackTrace();
+					return renderManager.getSkinMap().get("default");
+				}
 			} else {
 				return renderManager.getEntityRenderObject(entity);					
 			}
 		}
+	}
+	
+	public static void log(Object message) {
+		System.out.println("ExplodingMobs ERROR: " + message);
+	}
+	
+	public static void warn(Object message) {
+		System.out.println("ExplodingMobs WARNING: " + message);
 	}
 }
