@@ -17,6 +17,9 @@ public class ExplodingMobsConfig {
 	 */
 	private static boolean useMcMobsOnly;
 	private static boolean explodePlayers;
+	private static int despawnTime;
+	// Doesn't work!
+	private static double renderRange;
 
 	public static void readConfig(FMLPreInitializationEvent event) {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
@@ -26,6 +29,10 @@ public class ExplodingMobsConfig {
 				.getBoolean();
 		ExplodingMobsConfig.explodePlayers = config.get(Configuration.CATEGORY_GENERAL, "explode_players", false)
 				.getBoolean();
+		ExplodingMobsConfig.despawnTime = config.get(Configuration.CATEGORY_GENERAL, "despawn_time", 100)
+				.getInt();
+		//ExplodingMobsConfig.renderRange = config.get(Configuration.CATEGORY_GENERAL, "render_range", 1)
+		//		.getDouble();
 
 		if (config.hasChanged()) {
 			config.save();
@@ -58,9 +65,16 @@ public class ExplodingMobsConfig {
 	}
 
 	/**
-	 * @return True if the config lets Player explode.
+	 * Gets the time in seconds it should take for a part to disappear.
 	 */
-	public boolean shouldExplodePlayers() {
-		return ExplodingMobsConfig.explodePlayers;
+	public static int getDespawnTime() {
+		return ExplodingMobsConfig.despawnTime;
+	}
+	
+	/**
+	 * Gets the distance that a part is visible.
+	 */
+	public static double getRenderRange() {
+		return ExplodingMobsConfig.renderRange;
 	}
 }

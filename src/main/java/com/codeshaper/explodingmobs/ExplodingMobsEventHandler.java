@@ -12,6 +12,7 @@ import com.codeshaper.explodingmobs.entity.EntityMobPart;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Rotations;
@@ -39,10 +40,8 @@ public class ExplodingMobsEventHandler {
 	public void entityDeath(LivingDeathEvent event) {
 		EntityLivingBase living = event.getEntityLiving();
 
-		if (living.world.isRemote) {
-			// This event is happening on the client side, ignore.
-		} else {
-			// Check if the Entity should explode. If not, control is returned.
+		if (!living.world.isRemote) { // Only run on the server side.
+
 			EntityEntry ee;
 			if ((living instanceof EntityPlayer)) {
 				ee = EntityRegistry.getEntry(EntityFakePlayer.class);
@@ -51,16 +50,15 @@ public class ExplodingMobsEventHandler {
 																	// register (bad and shouldn't happen).
 			}
 
+			// Check if the Entity should explode. If not, control is returned.
 			if (!ExplodingMobsConfig.shouldExplode(ee)) {
 				return; // Do not explode the Entity.
 			}
 
-			// Explode the Entity.
-
 			// Gets the renderer, continuing if one is found.
-			Render<?> r = Util.getRendererFromEntity(living);
+			Render<Entity> r = Util.getRendererFromEntity(living);
 			if (r == null) {
-				Util.log("Could not find a Render class for Entity with name " + ee.getName()
+				Util.logErr("Could not find a Render for Entity with name " + ee.getName()
 						+ ".  No Parts will be spawned.");
 			}
 
@@ -84,7 +82,6 @@ public class ExplodingMobsEventHandler {
 
 					// Drop XP.
 					living.deathTime = 19;
-
 					try {
 						if (this.onLivingDeathMethod != null) {
 							this.onLivingDeathMethod.invoke(living);
@@ -94,11 +91,11 @@ public class ExplodingMobsEventHandler {
 						}
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 							| NullPointerException e) {
-						Util.log("Unable spawn XP orbs on Entity death.  See stack trace for more on error.");
+						Util.logErr("Unable spawn XP orbs on Entity death.  See stack trace for more on error.");
 						e.printStackTrace();
 					}
 
-					// Remove the entity.
+					// Remove the entity from the world.
 					living.setDead();
 				}
 			} else {
@@ -112,8 +109,7 @@ public class ExplodingMobsEventHandler {
 	/**
 	 * Generates a random speed for the part to rotate.
 	 * 
-	 * @param rand
-	 *            A random number generator.
+	 * @param rand A random number generator.
 	 * @return The speed as a float.
 	 */
 	private float getRndRotSpeed(Random rand) {

@@ -4,7 +4,9 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,26 +25,30 @@ import net.minecraft.world.World;
 public class Util {
 
 	/**
-	 * Converts and entity into a JSON string.
+	 * Converts an Entity into a JSON string.
 	 */
 	@Nullable
 	public static String entityToString(Entity entity) {
 		NBTTagCompound tag;
-		if(entity instanceof EntityPlayer) {
+		if (entity instanceof EntityPlayer) {
 			NBTTagCompound ret = new NBTTagCompound();
-	        ret.setString("id", new ResourceLocation(ExplodingMobs.MOD_ID, ExplodingMobs.ID_FAKE_PLAYER).toString());
-	        tag = entity.writeToNBT(ret);
+			ret.setString("id", new ResourceLocation(ExplodingMobs.MOD_ID, ExplodingMobs.ID_FAKE_PLAYER).toString());
+			tag = entity.writeToNBT(ret);
 		} else {
-			tag = entity.serializeNBT();			
+			tag = entity.serializeNBT();
 		}
-		return tag.toString();	        
+		return tag.toString();
 	}
 
 	/**
-	 * Converts a JSON NBT string into an entity.
+	 * Converts a JSON NBT string into an Entity.
+	 * 
+	 * @param world
+	 * @param jsonString
+	 * @return The entity, or null on error.
 	 */
 	@Nullable
-	public static EntityLivingBase stringToEntity(World world, String jsonString) {
+	public static Entity stringToEntity(World world, String jsonString) {
 		NBTTagCompound nbt;
 		try {
 			nbt = JsonToNBT.getTagFromJson(jsonString);
@@ -50,40 +56,57 @@ public class Util {
 			ex.printStackTrace();
 			return null;
 		}
-		return (EntityLivingBase) EntityList.createEntityFromNBT(nbt, world);
+		return EntityList.createEntityFromNBT(nbt, world);
 	}
 
 	/**
-	 * Returns the render for the passes entity, or null if this is a dedicated
-	 * server.
+	 * Gets the {@link Render} that the passed Entity uses.
+	 * 
+	 * @param entity
+	 * @return Returns the render for the passes entity. Null is returned if this is
+	 *         a dedicated server.
 	 */
 	@Nullable
-	public static Render<?> getRendererFromEntity(@Nullable Entity entity) {
+	public static Render getRendererFromEntity(@Nullable Entity entity) {
 		RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
 		if (renderManager == null) {
-			Util.log("The RenderManager is null, is this a dedicated server?  There will be problems!!!");
+			Util.logErr("The RenderManager is null, is this a Dedicated Server?  There will be problems down the road!");
 			return null;
 		} else {
-			if(entity instanceof EntityPlayer) {
-				try {
-					String s = Minecraft.getMinecraft().getConnection().getPlayerInfo(entity.getUniqueID()).getSkinType();
-					return renderManager.getSkinMap().get(s);
-				} catch (Exception e) {
-					Util.log("While attempting to explode a player there was a problem looking up critical model and skin information.  Using the default model.  Exception stack trace will follow.");
-					e.printStackTrace();
-					return renderManager.getSkinMap().get("default");
-				}
+			if (entity instanceof EntityPlayer) {
+				return Util.getPlayerRenderer((EntityPlayer) entity);
 			} else {
-				return renderManager.getEntityRenderObject(entity);					
+				return renderManager.getEntityRenderObject(entity);
 			}
 		}
 	}
-	
-	public static void log(Object message) {
-		System.out.println("ExplodingMobs ERROR: " + message);
+
+	/**
+	 * Gets the model of a Player based on their skin settings online.
+	 * 
+	 * @param player
+	 * @return The model of the player. On error, the Steve model is returned.
+	 */
+	public static RenderPlayer getPlayerRenderer(EntityPlayer player) {
+		RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+
+		// This is a player, the model depends on the player's skin settings online.
+		try {
+			String s = Minecraft.getMinecraft().getConnection().getPlayerInfo(player.getUniqueID()).getSkinType();
+			return renderManager.getSkinMap().get(s);
+		} catch (Exception e) {
+			Util.logErr(
+					"Could not look up the model of a Player from online, using the default model.  Exception stack trace will follow...");
+			e.printStackTrace();
+			return renderManager.getSkinMap().get("default");
+		}
 	}
-	
-	public static void warn(Object message) {
+
+	public static void logErr(Object message) {
+		System.err.println("ExplodingMobs ERROR: " + message);
+	}
+
+	public static void logWarn(Object message) {
 		System.out.println("ExplodingMobs WARNING: " + message);
 	}
 }

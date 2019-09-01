@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.codeshaper.explodingmobs.ExplodingMobsConfig;
+import com.codeshaper.explodingmobs.ExplodingMobsEventHandler;
 import com.codeshaper.explodingmobs.Util;
 
 import net.minecraft.entity.Entity;
@@ -49,11 +51,12 @@ public class EntityMobPart extends Entity {
 		this(worldIn);
 		this.setPosition(x, y, z);
 
+		// Create an instance of the entity that we killed to create this part.
 		String s = Util.entityToString(living);
 		if (s != null) {
 			this.setTargetEntity(s);
 		} else {
-			Util.log("Entity from class " + living.getClass().toString()
+			Util.logErr("Entity from class " + living.getClass().toString()
 					+ " doesn't seem to have been registered!  Removing Mob Part!");
 			this.setDead();
 			return;
@@ -72,7 +75,7 @@ public class EntityMobPart extends Entity {
 		super(worldIn);
 		this.setSize(0.1f, 0.1f);
 
-		this.age = 100;
+		this.age = ExplodingMobsConfig.getDespawnTime();
 	}
 
 	@Override
@@ -223,13 +226,13 @@ public class EntityMobPart extends Entity {
 	 *         is slow.
 	 */
 	@Nullable
-	public Entity getTargetEntity() {
+	public EntityLivingBase getTargetEntity() {
 		if (this.targetEntity == null) {
 			String string = this.getTargetEntityAsString();
 			if (!StringUtils.isBlank(string)) {
-				this.targetEntity = Util.stringToEntity(this.world, string);
+				this.targetEntity = (EntityLivingBase) Util.stringToEntity(this.world, string);
 			} else {
-				Util.warn("The data manager may need a moment to catch up.");
+				Util.logWarn("The data manager may need a moment to catch up.");
 			}
 		}
 		return this.targetEntity;

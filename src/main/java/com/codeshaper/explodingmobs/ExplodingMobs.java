@@ -8,6 +8,7 @@ import com.codeshaper.explodingmobs.entity.EntityMobPart;
 import com.codeshaper.explodingmobs.proxy.IProxy;
 
 import net.minecraft.client.renderer.entity.RenderLiving;
+import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,6 +22,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 
 @EventBusSubscriber
 
@@ -38,7 +40,7 @@ public class ExplodingMobs {
 	 * reference to methods and not textures because the texture will vary depending
 	 * on the entity we pass in (Entity is saved with the part entity).
 	 */
-	public static HashMap<RenderLiving<EntityLiving>, Method> rendererToMethod;
+	public static HashMap<RenderLivingBase<EntityLiving>, Method> rendererToMethod;
 
 	@SidedProxy(clientSide = "com.codeshaper.explodingmobs.proxy.ProxyClient", serverSide = "com.codeshaper.explodingmobs.proxy.ProxyServer")
 	public static IProxy proxy;
@@ -58,6 +60,7 @@ public class ExplodingMobs {
 		EntityEntry entry = EntityEntryBuilder.create().entity(EntityMobPart.class)
 				.id(new ResourceLocation(ExplodingMobs.MOD_ID, ExplodingMobs.ID_MOB_PART), 0)
 				.name(ExplodingMobs.ID_MOB_PART).tracker(64, 20, true).build();
+		
 		EntityEntry entry1 = EntityEntryBuilder.create().entity(EntityFakePlayer.class)
 				.id(new ResourceLocation(ExplodingMobs.MOD_ID, ExplodingMobs.ID_FAKE_PLAYER), 1)
 				.name(ExplodingMobs.ID_FAKE_PLAYER).tracker(64, 20, false).build();

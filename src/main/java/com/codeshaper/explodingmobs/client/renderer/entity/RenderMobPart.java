@@ -18,6 +18,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import org.lwjgl.opengl.GL11;
@@ -37,36 +38,35 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 
 	@Override
 	public void doRender(EntityMobPart entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		Entity targetEntity = entity.getTargetEntity();
+		EntityLivingBase targetEntity = entity.getTargetEntity();
 		if(targetEntity == null) {
-			Util.log("Target entity is null!");
 			return;
 		}
+				
 		try {
-			Render<?> render = Util.getRendererFromEntity(targetEntity);
+			RenderLivingBase<EntityLivingBase> render = (RenderLivingBase<EntityLivingBase>) Util.getRendererFromEntity(targetEntity);
 			if(render == null) {
-				Util.log("render is null!"); //check part index?;
-			}
-			if (render != null) {
+				Util.logErr("ERROR!  Could not get the renderer of " + targetEntity.getName() + "!");
+			} else {
 				int partIndex = entity.getPartIndex();
 
-				RenderLivingBase<?> renderLivingBase = (RenderLivingBase<?>) render;
 				ModelBase entityModel;
-				if(renderLivingBase instanceof RenderFakePlayer) {					
+
+				if(render instanceof RenderFakePlayer) {					
 					Map<String, RenderPlayer> map = Minecraft.getMinecraft().getRenderManager().getSkinMap();
-					EntityFakePlayer fp = (EntityFakePlayer)targetEntity;
-
-					entityModel = map.get(fp.getModelType()).getMainModel();
+					EntityFakePlayer fakePlayer = (EntityFakePlayer)targetEntity;
+					entityModel = map.get(fakePlayer.getModelType()).getMainModel();
 				} else {
-					entityModel = renderLivingBase.getMainModel();
+					entityModel = render.getMainModel();
 				}
-
+				
 				if (entityModel != null && entityModel.boxList != null && partIndex < entityModel.boxList.size()) {
 					GlStateManager.pushMatrix();
+					
 					GlStateManager.translate((float) x, (float) y, (float) z);
 					this.bindEntityTexture(entity);
 
-					// Added a fade effect if the piece will soon disappear
+					// Fade the part if it will soon disappear.
 					boolean showFadeEffect = (entity.age < 40f);
 					if (showFadeEffect) {
 						GL11.glEnable(GL11.GL_BLEND);
@@ -75,11 +75,13 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 						GL11.glColor4f(1.0f, 1.0f, 1.0f, alpha);
 					}
 
-					// Scale the model, and reset the translation that prepareScale moved
-					//renderLivingBase.prepareScale((EntityLivingBase) targetEntity, partialTicks);
-					//GlStateManager.translate(0.0f, 1.501f, 0.0f);
+					// Scale the model.
+					render.prepareScale((EntityLivingBase)targetEntity, partialTicks);
+					
+					// Reset the translation that prepareScale moved.
+					GlStateManager.translate(0.0f, 1.501f, 0.0f);
 
-					// Render the part
+					// Render the part.
 					ModelRenderer part = ((ModelRenderer) entityModel.boxList.get(partIndex));
 
 					// Save the old rotations to restore later
@@ -87,20 +89,20 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 					float oldY = part.rotateAngleY;
 					float oldZ = part.rotateAngleZ;
 
-					// Set the parts rotation equal to the entity's
+					// Set the parts rotation equal to the entity's.
 					part.rotateAngleX = entity.getRotation().getX();
 					part.rotateAngleY = entity.getRotation().getY();
 					part.rotateAngleZ = entity.getRotation().getZ();
 
-					// Render the part
-					//entityModel.render(targetEntity, 0, 0, 1, 0, 0, 1);
+					// Render the part.
 					part.render(entityYaw);
 
-					// Restore the part's rotations
+					// Restore the part's rotations, that way the model doesn't look all funny next time it's used.
 					part.rotateAngleX = oldX;
 					part.rotateAngleY = oldY;
 					part.rotateAngleZ = oldZ;
 
+					// Restore the GL11 state.
 					if (showFadeEffect) {
 						GL11.glDisable(GL11.GL_BLEND);
 						GL11.glColor4f(1, 1, 1, 1);
@@ -108,13 +110,11 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 
 					GlStateManager.popMatrix();
 				} else {
-					Util.log("ERROR!  Could not get the model part corresponding to this part!");
+					Util.logErr("ERROR!  Could not get the model part corresponding to this part!");
 				}
-			} else {
-				Util.log("ERROR!  Could not get the renderer of " + targetEntity.getName() + "!");
 			}
 		} catch (Exception e) {
-			Util.log("ERROR!  Problem rendering MobPart based from " + targetEntity.getName());
+			Util.logErr("ERROR!  Problem rendering MobPart based from " + targetEntity.getName());
 			e.printStackTrace();
 		}
 
@@ -123,9 +123,9 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 
 	@Override
 	@Nonnull
-	protected ResourceLocation getEntityTexture(EntityMobPart entity) {
-		EntityLivingBase partTarget = (EntityLivingBase) entity.getTargetEntity();
-		RenderLiving<EntityLiving> entityRenderer = ((RenderLiving<EntityLiving>) Util.getRendererFromEntity(partTarget));
+	protected ResourceLocation getEntityTexture(EntityMobPart mobPart) {
+		EntityLivingBase partTarget = (EntityLivingBase) mobPart.getTargetEntity();
+		RenderLivingBase<EntityLiving> entityRenderer = ((RenderLivingBase<EntityLiving>) Util.getRendererFromEntity(partTarget));
 		return this.getOtherEntityTexture(entityRenderer, partTarget);			
 	}
 	
@@ -138,7 +138,7 @@ public class RenderMobPart<T extends Entity> extends Render<EntityMobPart> {
 	 * Looks up the texture of the passed entity.
 	 */
 	@Nonnull
-	private ResourceLocation getOtherEntityTexture(RenderLiving<EntityLiving> targetRenderer, EntityLivingBase targetEntity) {
+	private ResourceLocation getOtherEntityTexture(RenderLivingBase<EntityLiving> targetRenderer, EntityLivingBase targetEntity) {
 		Method method;
 		if (!ExplodingMobs.rendererToMethod.containsKey(targetRenderer)) {
 			method = ReflectionHelper.findMethod(Render.class, "getEntityTexture", "func_110775_a", Entity.class);

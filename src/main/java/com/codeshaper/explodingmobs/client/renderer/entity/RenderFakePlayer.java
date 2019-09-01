@@ -3,10 +3,13 @@ package com.codeshaper.explodingmobs.client.renderer.entity;
 import com.codeshaper.explodingmobs.entity.EntityFakePlayer;
 
 import net.minecraft.client.renderer.entity.RenderLiving;
+import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
-public class RenderFakePlayer extends RenderLiving<EntityFakePlayer> {
+public class RenderFakePlayer<T extends EntityLivingBase> extends RenderLivingBase<EntityFakePlayer> {
 
 	public RenderFakePlayer(RenderManager manager) {
 		super(manager, null, 0.5f);

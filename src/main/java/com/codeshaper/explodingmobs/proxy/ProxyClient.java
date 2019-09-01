@@ -18,7 +18,7 @@ public class ProxyClient implements IProxy {
 			@Override
 			public Render<EntityMobPart> createRenderFor(RenderManager manager) {
 				return new RenderMobPart(manager);
-			}
+			}			
 		});
 		RenderingRegistry.registerEntityRenderingHandler(EntityFakePlayer.class, new IRenderFactory<EntityFakePlayer>() {
 			@Override
